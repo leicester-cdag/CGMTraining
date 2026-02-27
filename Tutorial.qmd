@@ -1,0 +1,316 @@
+---
+title: "Continuous Glucose Monitoring Data Analysis Group Training"
+author: "Jonah Thomas and Gilberte Martine-Edith"
+format: 
+  html:
+    toc: true
+    theme: spacelab
+    axe:
+      output: console
+editor: source
+---
+
+# Introduction
+
+This course will teach you how to process, analyse, and visualise CGM data using R. We will break this process down into 6 steps: downloading data, reading CGM data into R, formatting columns (data manipulation), running checks, outputting CGM metrics, and visualising CGM metrics.
+
+## Getting help with R
+
+There are many ways to get help with coding in R. If you want additional help within RStudio, you can search for a function by running `?dplyr::select` in the R console with any function. This is helpful to understand how a function is intended to work and what arguments it may take. For larger questions, ChatGPT, Microsoft CoPilot, and other AI tools can be extremely helpful (but can be prone to errors). There are also a number of forums online (including StackOverflow) where your question may previously have been answered.
+
+# Downloading data
+
+
+### add in steps to download CGM data and tutorial document from github and save it locally  
+This process will be discussed as part of the presentation - there is no need to use R or any coding languages to download data. Instead you should follow the process which will be specific to each CGM device/brand.
+
+
+###What to do about solutions - separate document or bottom of document 
+
+# Reading data into R
+
+Many different file formats can be read into R using a variety of functions. CSV and Excel files are likely to be the most commonly read in file types. CSV files can be read into R using the `read.csv` function whilst Excel files require the `readxl` package and `read_xlsx` file. The `haven` package is extremely useful for reading in less common files formats such as SPSS or State files.
+
+Most functions which read data into R take a file path as the first argument; this specifies which file you want to read into R. Below is an example of how to read a csv file in R.
+
+```{r, eval=FALSE}
+data <- read.csv("file_path")
+```
+
+## Exercise One
+
+Now it is your turn to read a file into R. We would like you to read in the file titled "XXXX" in your folder into RStudio using the code above as an example. Once you have read the file into R, view it either using the `View()` command or clicking on it in the environment.
+
+```{r}
+# Your code to complete exercise one
+```
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+data <- read.csv("sim_data/Patient A.csv")
+View(data)
+```
+
+## Additional challenge
+
+You may notice when looking at your data that something is not quite right. The column names we want are currently stored in our first row of data. This issue can be resolved using specific arguments you can add to the `read.csv` function. Specifically, see what the `skip` and `header` arguments do when they are changed.
+
+```{r}
+# Your additional code can go here
+```
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+data <- read.csv("sim_data/Patient A.csv", skip = 1, header = TRUE)
+View(data)
+```
+
+## Reading multiple files at once
+
+Very often when working with CGM data it is necessary to read in multiple files (often one per participant). In large studies, this would require repeating our above code hundreds of times. To reduce this repetition, we can use a programming concept known as a for loop. A for loop allows us to execute the same lines of code multiple times while iteratively changing aspects of the code. In our example, we can change the file path to read in a different file each time.
+
+Before reading in multiple files we need to get a list of the file names into R. We can do this by setting a folder path (where our CGM is stored), and then using the `list.files` function to get the names of the files in that folder.
+
+```{r,eval=F}
+folder_path <- "sim_data"
+files <- list.files(folder_path)
+```
+
+Once we have our list of files, we can read the data in using a for loop and save it as a list of dataframes.
+
+```{r,eval=F}
+data_list <- list() 
+
+for(i in 1:length(files)) {
+  data_list[[i]] <- read.csv(paste0(folder_path, "/", files[i]), skip = 1, header = TRUE)
+}
+
+names(data_list) <- files
+
+data <- dplyr::bind_rows(data_list, .id = "id")
+```
+
+In the above code, we create an empty list to save our data into. We then create a for loop which will iterate through from number 1, to the number of files stored in the folder. We then use the `paste0` function to create a file path by pasting together the folder path with the file name. This read in data is there stored in the list (data_list).
+
+Once we have our list of dataframes, we then use the `names` function to name each dataframe. In this case we have named them the same as the original file names, but this can be changed to suit your needs. Finally, we use the `dplyr` function `bind_rows` which creates one large, long dataframe where all our data is now stored. We use the `.id` argument to add an ID column to our data (so we know which participant the data came from) which in this scenario will be the file names.
+
+The above code is relatively complex to understand and if it does not all make sense straight away that is to be expected. Fortunately, this code can be copy and pasted into any project and by adjusting the folder path can be run without any further adjustments.
+
+
+###Potential to add vroom
+
+
+## Exercise two
+
+Copy the code from above which allows you to read in multiple files. Change the folder path to the folder we have provide you which contains CGM data. Once this is changed, the code should run and read in the files contained within the folder.
+
+```{r}
+# Your exercise two code can go here
+```
+
+# Formatting columns
+
+Once our data is read into R, we often need to do some basic data manipulation to get the data in the format we require. One step in this process is selecting the appropriate columns, then changing the column names.
+
+## Selecting columns
+
+There are two main methods used to select columns in R - referred to as the base method or the dplyr (tidyverse) method. To select columns in base R we can select columns by there number as shown below.
+
+```{r, eval=F}
+data <- data[, 1] # select column 1 
+data <- data[, 1:3] # select columns 1 through 3
+data <- data[, c(1,2, 4:6)] # select columns 1 and 2, and 4 through 6
+```
+
+Using `dplyr` we can select columns using their names as shown below.
+
+```{r, eval=F}
+data |>
+  dplyr::select(column_1, column_2)
+```
+
+## Exercise three
+
+Try either of the approaches above to select the ID, date/time, and glucose columns in your dataset. 
+
+```{r}
+# Insert your code to exercise three here 
+```
+
+
+```{r}
+#| code-fold: TRUE
+
+data <- data[, c(1,4,6)]
+
+data <- data |>
+  dplyr::select(id, Device.Timestamp, Historic.Glucose.mmol.L)
+```
+
+## Changing column names
+
+As with selecting columns, there are many options regarding how columns can be renamed. In base R, a simple method to rename columns is shown below.
+
+```{r,eval=F}
+colnames(data) <- c("new_name1", "new_name2")
+```
+
+In dplyr, we can use the `rename` function.
+
+```{r,eval=F}
+data <- data |>
+  dplyr::rename(
+    old_name = "new_name",
+    old_name2 = "new_name2"
+  )
+```
+
+## Exercise four
+
+Try to rename the columns of your dataframe. They should be named: id, time, gl. 
+
+```{r}
+# Your code for exercise four should go here
+```
+
+```{r}
+colnames(data) <- c("id", "time", "gl")
+
+data <- data |>
+  dplyr::rename(
+    id = "id",
+    time = "Device.Timestamp",
+    gl = "Historic.Glucose.mmol.L"
+  )
+```
+
+## Changing date time columns to different formats
+
+Columns which express the date and time are notoriously difficult to manage whe coding! However, we do not need to do too much with our CGM data. Often when CGM data are read into R, they are read as a character column, but for our analysis to run successfully we need to change this to a date/time format. We can do that using the code below:
+
+```{r,eval=FALSE}
+data <- data |>
+  dplyr::mutate(
+    time = as.POSIXct(time, format = "%d/%m/%Y %H:%M", tz="UTC")
+  )
+```
+
+##add in lubridate dmy_hm
+
+This will not change how your data looks, but changes how it is interpreted by future functions.
+
+## Changing the format of the glucose column
+
+Frequently in Europe, we look at CGM data measured in mmol/L. However, in the US there is a tendency to us mg/dL. The iglu package, which we will use later, only accepts glucose data in mg/dL. We therefore need to convert out glucose column from mmol/L to mg/dL. To do this, we need to multiply the column by 18.
+
+## Exercise five
+
+See if you can write code to convert your glucose column from mmol/L, to mg/dL.
+
+```{r}
+# Your exercise five code goes here
+```
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+# only run one of these options once!
+
+# method using base R
+data$gl <- as.numeric(data$gl * 18)
+
+# method using tidyverse syntax
+data <- data |>
+  dplyr::mutate(
+    gl = as.numeric(gl * 18)
+  )
+```
+
+# Running checks on our data
+
+Now we have our data read in and formatted correctly, we can run a few basic checks. This may include calculating the mean glucose, range of glucose values, duplicates within the CGM timestamps, and missingness within the CGM timestamps.
+
+## Exercise six
+
+Conduct some basic data checks on your CGM data. Consider how you would calculate the: - Mean glucose value - Range of glucose values - Missingness within the CGM timestamp column
+
+## WHAT OTHER CHECKS COULD BE POTENTIALLY DONE EASILY
+##NUMBER OF MEASUREMENTS PER PARTICIPANT - AGAINST HOW MANY THEY WOULD HAVE EXPECTED? % OF MISSINGNESS 
+
+```{r}
+# Your code to address exercise six should go here 
+```
+
+```{r solution-6,eval=F}
+#| code-fold: true
+mean(data$gl, na.rm = TRUE)
+range(data$gl, na.rm = TRUE)
+
+```
+
+# Using the iglu package
+
+The iglu package is commonly used to analyse CGM data within the research community. The package contains many functions which allow us to summarise and visualise CGM data in a variety of ways.
+
+## Exercise seven
+
+Explore the functionality available within the iglu package. You can do this by reading this [webpage](https://irinagain.github.io/iglu/reference/index.html) or by typing `iglu::` followed by a letter into the console in R.
+
+We would like you to produce:
+
+-   % CGM active
+
+-   The mean glucose for each participant
+
+-   The coefficient of variation for each participant
+
+-   The estimated HbA1c for each participant
+
+-   The time above, below, and in range for each participant
+
+-   A summary of any hypo/hyper glycaemic episodes (potentially delete)
+
+```{r}
+# Your code to solve exercise seven should go here
+```
+
+```{r solution-7,eval=F}
+#| code-fold: true
+iglu::mean_glu(data)
+iglu::cv_glu(data)
+iglu::ea1c(data)
+iglu::above_percent(data)
+iglu::in_range_percent(data)
+iglu::below_percent(data)
+iglu::episode_calculation(data)
+```
+
+# Visualising CGM data using iglu
+
+The ambulatory glucose profile (AGP) is commonly used to display an individuals average glucose levels over a given period of time (often a week or 14 days). These plots allow us at a glance to assess an individuals glucose control. iglu provides a function for plotting CGM data as an AGP.
+
+## Add in exercise to plot time series for 1 or 2 participants
+
+## Exercsie eight
+
+For this exercise we would like you to plot an AGP for two participants. Once you have created these two AGPs, compare the glucose control between the two. What is similar, what is different, does anything stand out?
+
+```{r}
+# Your solution for exercise eight goes here
+```
+
+```{r solution-8,eval=F}
+#| code-fold: true
+iglu::agp(data |> dplyr::filter(id == "001"))
+iglu::agp(data |> dplyr::filter(id == "002"))
+```
+
+# Conclusion
+
+You should now have the skills to read CGM data into R, manipulate the data into your desired format, use the iglu package too calculate your required metrics and visualisations. The final exercise below asks you to combine all the code you have used above to create a single pipeline which takes you from your csv file, all the way through to CGM metrics and an AGP visualisation. 
+
+```{r}
+# Your final CGM data pipeline goes here
+```
