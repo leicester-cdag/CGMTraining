@@ -7,7 +7,7 @@ format:
     theme: spacelab
     axe:
       output: console
-editor: source
+editor: visual
 ---
 
 # Introduction
