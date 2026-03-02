@@ -16,16 +16,15 @@ This course will teach you how to process, analyse, and visualise CGM data using
 
 ## Getting help with R
 
-There are many ways to get help with coding in R. If you want additional help within RStudio, you can search for a function by running `?dplyr::select` in the R console with any function. This is helpful to understand how a function is intended to work and what arguments it may take. For larger questions, ChatGPT, Microsoft CoPilot, and other AI tools can be extremely helpful (but can be prone to errors). There are also a number of forums online (including StackOverflow) where your question may previously have been answered.
+There are many ways to get help with coding in R. If you want additional help within RStudio, you can search for a function by running `?dplyr::select` in the R console with any function. This is helpful to understand how a function is intended to work and what arguments it may take. For larger (more complex) questions, ChatGPT, Microsoft CoPilot, and other AI tools can be extremely helpful (but can be prone to errors). There are also a number of forums online (including StackOverflow) where your question may previously have been answered.
+
+## Exercises and solutions
+
+THroughout this document, there will be several coding exercises where you will be asked to write some code to solve a problem. A solution to each exercise can be found at the end of this document. We recommend trying to write the code yourself first, then trying to get help from the internet or Rstudio, then asking your colleagues sat around you, then asking Gil or myself, before consulting the solution. However, they are always available if you need a nudge in the right direction. 
 
 # Downloading data
 
-
-### add in steps to download CGM data and tutorial document from github and save it locally  
 This process will be discussed as part of the presentation - there is no need to use R or any coding languages to download data. Instead you should follow the process which will be specific to each CGM device/brand.
-
-
-###What to do about solutions - separate document or bottom of document 
 
 # Reading data into R
 
@@ -45,26 +44,12 @@ Now it is your turn to read a file into R. We would like you to read in the file
 # Your code to complete exercise one
 ```
 
-```{r,eval=FALSE}
-#| code-fold: true
-
-data <- read.csv("sim_data/Patient A.csv")
-View(data)
-```
-
-## Additional challenge
+### An additional challenge
 
 You may notice when looking at your data that something is not quite right. The column names we want are currently stored in our first row of data. This issue can be resolved using specific arguments you can add to the `read.csv` function. Specifically, see what the `skip` and `header` arguments do when they are changed.
 
 ```{r}
 # Your additional code can go here
-```
-
-```{r,eval=FALSE}
-#| code-fold: true
-
-data <- read.csv("sim_data/Patient A.csv", skip = 1, header = TRUE)
-View(data)
 ```
 
 ## Reading multiple files at once
@@ -74,7 +59,7 @@ Very often when working with CGM data it is necessary to read in multiple files 
 Before reading in multiple files we need to get a list of the file names into R. We can do this by setting a folder path (where our CGM is stored), and then using the `list.files` function to get the names of the files in that folder.
 
 ```{r,eval=F}
-folder_path <- "sim_data"
+folder_path <- "data"
 files <- list.files(folder_path)
 ```
 
@@ -97,10 +82,6 @@ In the above code, we create an empty list to save our data into. We then create
 Once we have our list of dataframes, we then use the `names` function to name each dataframe. In this case we have named them the same as the original file names, but this can be changed to suit your needs. Finally, we use the `dplyr` function `bind_rows` which creates one large, long dataframe where all our data is now stored. We use the `.id` argument to add an ID column to our data (so we know which participant the data came from) which in this scenario will be the file names.
 
 The above code is relatively complex to understand and if it does not all make sense straight away that is to be expected. Fortunately, this code can be copy and pasted into any project and by adjusting the folder path can be run without any further adjustments.
-
-
-###Potential to add vroom
-
 
 ## Exercise two
 
@@ -133,20 +114,10 @@ data |>
 
 ## Exercise three
 
-Try either of the approaches above to select the ID, date/time, and glucose columns in your dataset. 
+Try either of the approaches above to select the ID, date/time, and glucose columns in your dataset.
 
 ```{r}
 # Insert your code to exercise three here 
-```
-
-
-```{r}
-#| code-fold: TRUE
-
-data <- data[, c(1,4,6)]
-
-data <- data |>
-  dplyr::select(id, Device.Timestamp, Historic.Glucose.mmol.L)
 ```
 
 ## Changing column names
@@ -162,28 +133,17 @@ In dplyr, we can use the `rename` function.
 ```{r,eval=F}
 data <- data |>
   dplyr::rename(
-    old_name = "new_name",
-    old_name2 = "new_name2"
+    new_name = "old_name",
+    new_name2 = "old_name2"
   )
 ```
 
 ## Exercise four
 
-Try to rename the columns of your dataframe. They should be named: id, time, gl. 
+Try to rename the columns of your dataframe. They should be named: id, time, gl.
 
 ```{r}
 # Your code for exercise four should go here
-```
-
-```{r}
-colnames(data) <- c("id", "time", "gl")
-
-data <- data |>
-  dplyr::rename(
-    id = "id",
-    time = "Device.Timestamp",
-    gl = "Historic.Glucose.mmol.L"
-  )
 ```
 
 ## Changing date time columns to different formats
@@ -213,41 +173,22 @@ See if you can write code to convert your glucose column from mmol/L, to mg/dL.
 # Your exercise five code goes here
 ```
 
-```{r,eval=FALSE}
-#| code-fold: true
-
-# only run one of these options once!
-
-# method using base R
-data$gl <- as.numeric(data$gl * 18)
-
-# method using tidyverse syntax
-data <- data |>
-  dplyr::mutate(
-    gl = as.numeric(gl * 18)
-  )
-```
-
 # Running checks on our data
 
 Now we have our data read in and formatted correctly, we can run a few basic checks. This may include calculating the mean glucose, range of glucose values, duplicates within the CGM timestamps, and missingness within the CGM timestamps.
 
 ## Exercise six
 
-Conduct some basic data checks on your CGM data. Consider how you would calculate the: - Mean glucose value - Range of glucose values - Missingness within the CGM timestamp column
+Conduct some basic data checks on your CGM data. Consider how you would calculate the:
 
-## WHAT OTHER CHECKS COULD BE POTENTIALLY DONE EASILY
-##NUMBER OF MEASUREMENTS PER PARTICIPANT - AGAINST HOW MANY THEY WOULD HAVE EXPECTED? % OF MISSINGNESS 
+-   Mean glucose value
+
+-   Range of glucose values
+
+-   How many CGM measurements would you expect compared with how many you have (each participant should have around 14 days of day)
 
 ```{r}
 # Your code to address exercise six should go here 
-```
-
-```{r solution-6,eval=F}
-#| code-fold: true
-mean(data$gl, na.rm = TRUE)
-range(data$gl, na.rm = TRUE)
-
 ```
 
 # Using the iglu package
@@ -260,7 +201,7 @@ Explore the functionality available within the iglu package. You can do this by 
 
 We would like you to produce:
 
--   % CGM active
+-   \% CGM active
 
 -   The mean glucose for each participant
 
@@ -276,8 +217,126 @@ We would like you to produce:
 # Your code to solve exercise seven should go here
 ```
 
+# Visualising CGM data using iglu
+
+There are many ways we can plot CGM data. The simplest of these is a time series graph. This is a line graph withn time on the X axis, and glucose value on the Y axis. It allows us to see all the data collected on a given participants, identify any periods of missing data, see the highest and lowest glucose values recorded, and do a basic quality check to identify any potential issues with our data. 
+
+Another commonly plotted graph is an in range percentage plot. This graph tells us the percentage of time a participant spent below, above, and in range. 
+
+The ambulatory glucose profile (AGP) is commonly used to display an individuals average glucose levels over a given period of time (often a week or 14 days). These plots allow us at a glance to assess an individuals glucose control. iglu provides a function for plotting CGM data as an AGP.
+
+## Add in exercise to plot time series for 1 or 2 participants
+
+## Exercsie eight
+
+For this exercise we would like you to plot three graphs: a time series graph for one participants data, an in range percentage plot for one participants data, and an AGP for one participants data. The iglu package has functions to create all these. Once you have created this series of graphs for one participant, please create the same series of graphs for another participant. Using these graphs try to compare the glucose control between the two. What is similar, what is different, does anything stand out?
+
+```{r}
+# Your solution for exercise eight goes here
+```
+
+# Conclusion
+
+You should now have the skills to read CGM data into R, manipulate the data into your desired format, use the iglu package too calculate your required metrics and visualisations. The final exercise below asks you to combine all the code you have used above to create a single pipeline which takes you from your csv file, all the way through to CGM metrics and an AGP visualisation.
+
+```{r}
+# Your final CGM data pipeline goes here
+```
+
+# Solutions
+
+## Exercise one
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+data <- read.csv("data/Patient A.csv")
+View(data)
+```
+
+### An additional challenge solution
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+data <- read.csv("sim_data/Patient A.csv", skip = 1, header = TRUE)
+View(data)
+```
+
+## Exercise two
+
+```{r,eval=F}
+folder_path <- "your_file_path"
+files <- list.files(folder_path)
+
+data_list <- list() 
+
+for(i in 1:length(files)) {
+  data_list[[i]] <- read.csv(paste0(folder_path, "/", files[i]), skip = 1, header = TRUE)
+}
+
+names(data_list) <- files
+
+data <- dplyr::bind_rows(data_list, .id = "id")
+```
+
+## Exercise three
+
+```{r}
+#| code-fold: TRUE
+
+data <- data[, c(1,4,6)]
+
+data <- data |>
+  dplyr::select(id, Device.Timestamp, Historic.Glucose.mmol.L)
+```
+
+## Exercise four
+
+```{r}
+colnames(data) <- c("id", "time", "gl")
+
+data <- data |>
+  dplyr::rename(
+    id = "id",
+    time = "Device.Timestamp",
+    gl = "Historic.Glucose.mmol.L"
+  )
+```
+
+## Exercise five
+
+```{r,eval=FALSE}
+#| code-fold: true
+
+# only run one of these options once!
+
+# method using base R
+data$gl <- as.numeric(data$gl * 18)
+
+# method using tidyverse syntax
+data <- data |>
+  dplyr::mutate(
+    gl = as.numeric(gl * 18)
+  )
+```
+
+## Exercise six
+
+```{r solution-6,eval=F}
+#| code-fold: true
+mean(data$gl, na.rm = TRUE)
+range(data$gl, na.rm = TRUE)
+
+(14 * 5) * 96 # how many data points you would expect (14 days x 5 participants x 96 measurements (1440 / 15))
+(14 * 5) * 96 - nrow(data)
+```
+
+## Exercise seven
+
 ```{r solution-7,eval=F}
 #| code-fold: true
+iglu::active_percent(data)
 iglu::mean_glu(data)
 iglu::cv_glu(data)
 iglu::ea1c(data)
@@ -287,30 +346,49 @@ iglu::below_percent(data)
 iglu::episode_calculation(data)
 ```
 
-# Visualising CGM data using iglu
-
-The ambulatory glucose profile (AGP) is commonly used to display an individuals average glucose levels over a given period of time (often a week or 14 days). These plots allow us at a glance to assess an individuals glucose control. iglu provides a function for plotting CGM data as an AGP.
-
-## Add in exercise to plot time series for 1 or 2 participants
-
-## Exercsie eight
-
-For this exercise we would like you to plot an AGP for two participants. Once you have created these two AGPs, compare the glucose control between the two. What is similar, what is different, does anything stand out?
-
-```{r}
-# Your solution for exercise eight goes here
-```
+## Exercise eight
 
 ```{r solution-8,eval=F}
 #| code-fold: true
+
+iglu::glu(data |> dplyr::filter(id == "001"))
+iglu::glu(data |> dplyr::filter(id == "002"))
+
+iglu::plot_ranges(data |> dplyr::filter(id == "001"))
+iglu::plot_ranges(data |> dplyr::filter(id == "002"))
+
 iglu::agp(data |> dplyr::filter(id == "001"))
 iglu::agp(data |> dplyr::filter(id == "002"))
 ```
 
-# Conclusion
-
-You should now have the skills to read CGM data into R, manipulate the data into your desired format, use the iglu package too calculate your required metrics and visualisations. The final exercise below asks you to combine all the code you have used above to create a single pipeline which takes you from your csv file, all the way through to CGM metrics and an AGP visualisation. 
+## Final pipeline
 
 ```{r}
-# Your final CGM data pipeline goes here
+folder_path <- "your_file_path"
+files <- list.files(folder_path)
+
+data_list <- list() 
+
+for(i in 1:length(files)) {
+  data_list[[i]] <- read.csv(paste0(folder_path, "/", files[i]), skip = 1, header = TRUE)
+}
+
+names(data_list) <- files
+
+data <- dplyr::bind_rows(data_list, .id = "id")
+
+data <- data[, c(1,4,6)]
+
+colnames(data) <- c("id", "time", "gl")
+
+data$gl <- as.numeric(data$gl * 18)
+
+summary_metrics <- iglu::summary_glu(data)
+
+iglu::glu(data |> dplyr::filter(id == "001"))
+
+iglu::plot_ranges(data |> dplyr::filter(id == "001"))
+
+iglu::agp(data |> dplyr::filter(id == "001"))
 ```
+
