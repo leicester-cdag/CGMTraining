@@ -20,7 +20,7 @@ There are many ways to get help with coding in R. If you want additional help wi
 
 ## Exercises and solutions
 
-THroughout this document, there will be several coding exercises where you will be asked to write some code to solve a problem. A solution to each exercise can be found at the end of this document. We recommend trying to write the code yourself first, then trying to get help from the internet or Rstudio, then asking your colleagues sat around you, then asking Gil or myself, before consulting the solution. However, they are always available if you need a nudge in the right direction. 
+Throughout this document, there will be several coding exercises where you will be asked to write some code to solve a problem. A solution to each exercise can be found at the end of this document. We recommend trying to write the code yourself first, then trying to get help from the internet or Rstudio, then asking your colleagues sat around you, then asking Gil or myself, before consulting the solution. However, they are always available if you need a nudge in the right direction.
 
 # Downloading data
 
@@ -219,9 +219,9 @@ We would like you to produce:
 
 # Visualising CGM data using iglu
 
-There are many ways we can plot CGM data. The simplest of these is a time series graph. This is a line graph withn time on the X axis, and glucose value on the Y axis. It allows us to see all the data collected on a given participants, identify any periods of missing data, see the highest and lowest glucose values recorded, and do a basic quality check to identify any potential issues with our data. 
+There are many ways we can plot CGM data. The simplest of these is a time series graph. This is a line graph withn time on the X axis, and glucose value on the Y axis. It allows us to see all the data collected on a given participants, identify any periods of missing data, see the highest and lowest glucose values recorded, and do a basic quality check to identify any potential issues with our data.
 
-Another commonly plotted graph is an in range percentage plot. This graph tells us the percentage of time a participant spent below, above, and in range. 
+Another commonly plotted graph is an in range percentage plot. This graph tells us the percentage of time a participant spent below, above, and in range.
 
 The ambulatory glucose profile (AGP) is commonly used to display an individuals average glucose levels over a given period of time (often a week or 14 days). These plots allow us at a glance to assess an individuals glucose control. iglu provides a function for plotting CGM data as an AGP.
 
@@ -391,4 +391,3 @@ iglu::plot_ranges(data |> dplyr::filter(id == "001"))
 
 iglu::agp(data |> dplyr::filter(id == "001"))
 ```
-
