@@ -72,7 +72,7 @@ You may notice when looking at your data that something is not quite right. The 
 
 ## 3. Reading multiple files at once
 
-Very often when working with CGM data it is necessary to read in multiple files (often one per participant). In large studies, this would require repeating our above code hundreds of times. To reduce this repetition, we can use a programming concept known as a "for loop". A "for loop" allows us to execute the same lines of code multiple times while iteratively changing aspects of the code. In our example, we can change the file path to read in a different file each time.
+Very often when working with CGM data it is necessary to read in multiple files (often one per participant). In large studies, this would require repeating our above code hundreds of times. To reduce this repetition, we can use a programming concept known as a "for loop". A for loop allows us to execute the same lines of code multiple times while iteratively changing aspects of the code. In our example, we can change the file path to read in a different file each time.
 
 Before reading in multiple files we need to get a list of the file names into R. We can do this by setting a folder path (where our CGM data is stored), and then using the `list.files` function to get the names of the files in that folder.
 
@@ -96,7 +96,7 @@ data <- dplyr::bind_rows(data_list, .id = "id") |>
   dplyr::mutate(id = gsub(".csv", "", id))
 ```
 
-In the above code, we create an empty list to save our data into. We then create a for loop which will iterate through from number 1, to the number of files stored in the folder. We then use the `paste0` function to create a file path by pasting together the folder path with the file name. This read in data is there stored in the list (data_list).
+In the above code, we create an empty list to save our data into. We then create a for loop which will iterate through from number 1, to the number of files stored in the folder. We then use the `paste0` function to create a file path by pasting together the folder path with the file name. This reads in the files which are stored in the list (data_list).
 
 Once we have our list of dataframes, we then use the `names` function to name each dataframe. In this case we have named them the same as the original file names, but this can be changed to suit your needs. We use the `dplyr` function `bind_rows` which creates one large, long dataframe where all our data is now stored. We use the `.id` argument to add an ID column to our data (so we know which participant the data came from) which in this scenario will be the file names. Lastly, the function `mutate` slightly modifies the column id so that ".csv" is removed from participant's ID.
 
@@ -159,7 +159,7 @@ data <- data |>
 
 ## Exercise 4
 
-Try to rename the columns of your dataframe. They should be named: id, time, gl.
+Try to rename the columns of your dataframe. Your new column names should be: id, time, gl.
 
 ```{r}
 # Your code for exercise 4 should go here
@@ -248,7 +248,7 @@ The ambulatory glucose profile (AGP) is another commonly used graph to display a
 
 ## Exercise 9
 
-For this exercise we would like you to plot two graphs: a time series graph and an AGP for one participant. The iglu package has functions to create all these. Once you have created this series of graphs for one participant, please create the same series of graphs for another participant. Using these graphs try to compare the glucose management between the two. What is similar, what is different, does anything stand out?
+For this exercise we would like you to plot two graphs: a time series graph and an AGP for one participant. The `iglu` package has functions to create all these. Once you have created this series of graphs for one participant, please create the same series of graphs for another participant. Using these graphs try to compare the glucose management between the two. What is similar, what is different, does anything stand out?
 
 ```{r}
 # Your solution for exercise 9 goes here
@@ -319,7 +319,7 @@ data <- data |>
 
 ## Exercise 5
 
-```{r}
+```{r,eval=FALSE}
 data <- data |>
   dplyr::mutate(
     time = lubridate::dmy_hm(time)
