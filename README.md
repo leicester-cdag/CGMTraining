@@ -8,7 +8,7 @@ running checks, outputting CGM metrics, and visualising CGM metrics.
 
 ## Setup
 - Download R and R studio from the Software centre 
-- Download all csv files (under the [data folder](https://github.com/leicester-cdag/CGMTraining/tree/main/data) in a local folder on your computer you can easily access
+- Download all csv files (under the [data folder](https://github.com/leicester-cdag/CGMTraining/tree/main/data)) in a local folder on your computer you can easily access
 - Download the Tutorial document, save it on your computer and open in R Studio 
 
 You are now ready for the tutorial!
