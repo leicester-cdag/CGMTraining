@@ -1,0 +1,115 @@
+---
+title: "Tutorial_solutions_pmb"
+authors: "Jonah Thomas, Gilberte Martine-Edith, Petra M. Baumann"
+format: 
+  html:
+    toc: true
+    theme: spacelab
+    axe:
+      output: console
+editor: visual
+---
+
+# Solutions
+
+### Exercise 1: Abbott LibreView (AL001)
+
+```{r, eval=FALSE}
+data_AL001 <- read.csv("data/AL001_CGM_data_2days.csv", skip = 2, header = TRUE)
+head(data_AL001[1:5])
+```
+
+### Exercise 2: Dexcom data from Glooko (DG002)
+
+```{r, eval=FALSE}
+data_DG002 <- read.csv("data/DG002_CGM_data_2days.csv", skip = 1, header = TRUE)
+head(data_DG002)
+```
+
+### Exercise 3: Dexcom Clarity (DC003)
+
+```{r, eval=FALSE}
+data_DC003 <- read.csv("data/DC003_CGM_data_2days.csv")
+head(data_DC003)
+
+data_DC003 <- read.csv("data/DC003_CGM_data_2days.csv", sep = ";")
+head(data_DC003)
+ncol(data_DC003)
+```
+
+### Exercise 4: Medtronic CareLink (MC004)
+
+```{r, eval=FALSE}
+data_MC004 <- read.csv("data/MC004_CGM_data_2days.csv", skip=6, sep=";")
+head(data_MC004)
+```
+
+### Exercise 6: Reading GluCINDa output into R
+
+```{r, eval=FALSE}
+glucinda_data <- read.csv("data2_parsed/parsed_just_cgm.csv", sep=";")
+head(glucinda_data)
+colnames(glucinda_data)
+str(glucinda_data)
+```
+
+### Exercise 7: applying the conversion function
+
+```{r, eval=FALSE}
+glucinda_data <- glucinda_data %>% 
+  add_converted_glucose_columns()
+  
+
+summary(glucinda_data$value_mmoll)
+```
+
+### Exercise 8: verify the datetime column
+
+```{r, eval=FALSE}
+class(glucinda_data$datetime)   # expected: "POSIXct" "POSIXt"
+head(glucinda_data$datetime)
+```
+
+### Exercise 9: Fixing duplicate values
+
+```{r, eval=FALSE}
+iglu_data <- iglu_data %>% dplyr::group_by(id, time) %>% summarise(gl = mean(gl))
+
+duplicates <- iglu_data %>% dplyr::filter( duplicated(paste(id, time)) | duplicated(paste(id, time), fromLast = TRUE) )
+
+nrow(duplicates)
+```
+
+### Exercise 10: Calculate mean and range of glucose values per participant
+
+```{r, eval=FALSE}
+iglu_data_14days %>% 
+  group_by(id) %>% 
+  summarise(mean_glucose = mean(gl, na.rm = TRUE),
+            min_glucose = min(gl, na.rm = TRUE), 
+            max_glucose = max(gl, na.rm = TRUE))
+```
+
+### Exercise 11: CGM metrics
+
+```{r,eval=FALSE}
+iglu::active_percent(iglu_data_14days)
+iglu::mean_glu(iglu_data_14days)
+iglu::cv_glu(iglu_data_14days)
+iglu::ea1c(iglu_data_14days)
+iglu::above_percent(iglu_data_14days)
+iglu::in_range_percent(iglu_data_14days)
+iglu::below_percent(iglu_data_14days)
+```
+
+### Exercise 12: Visualizing CGM data
+
+```{r,eval=FALSE}
+
+iglu::plot_glu(iglu_data_14days)
+
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "AL001"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DG002"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DC003"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "MC004"))
+```
