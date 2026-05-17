@@ -1,0 +1,202 @@
+---
+title: "Tutorial solutions"
+authors: "Jonah Thomas, Gilberte Martine-Edith, Petra M. Baumann"
+format: 
+  html:
+    toc: true
+    theme: spacelab
+    axe:
+      output: console
+editor: visual
+---
+
+# Solutions
+
+### Exercise 1: Abbott LibreView (AL001)
+
+```{r, eval=FALSE}
+data_AL001 <- read.csv("data/AL001_CGM_data_2days.csv", skip = 2, header = TRUE)
+head(data_AL001[1:5])
+```
+
+### Exercise 2: Dexcom data from Glooko (DG002)
+
+```{r, eval=FALSE}
+data_DG002 <- read.csv("data/DG002_CGM_data_2days.csv", skip = 1, header = TRUE)
+head(data_DG002)
+```
+
+### Exercise 3: Dexcom Clarity (DC003)
+
+```{r, eval=FALSE}
+data_DC003 <- read.csv("data/DC003_CGM_data_2days.csv")
+head(data_DC003)
+
+data_DC003 <- read.csv("data/DC003_CGM_data_2days.csv", sep = ";")
+head(data_DC003)
+ncol(data_DC003)
+```
+
+### Exercise 4: Medtronic CareLink (MC004)
+
+```{r, eval=FALSE}
+data_MC004 <- read.csv("data/MC004_CGM_data_2days.csv", skip=6, sep=";")
+head(data_MC004)
+```
+
+### Exercise 6: Reading GluCINDa output into R
+
+```{r, eval=FALSE}
+glucinda_data <- read.csv("data2_parsed/parsed_just_cgm.csv", sep=";")
+head(glucinda_data)
+colnames(glucinda_data)
+str(glucinda_data)
+```
+
+### Exercise 7: applying the conversion function
+
+```{r, eval=FALSE}
+#Option 1
+glucinda_data <- glucinda_data %>% 
+  add_converted_glucose_columns()
+
+#Option 2
+glucinda_data <- add_converted_glucose_columns(glucinda_data)
+
+
+summary(glucinda_data$value_mmoll)
+```
+
+### Exercise 8: Changing date time character column format
+
+```{r, eval=FALSE}
+glucinda_data <- glucinda_data %>%
+  dplyr::mutate(datetime = lubridate::ymd_hms(datetime))
+```
+
+### Exercise 9: Selecting relevant columns
+
+```{r, eval=FALSE}
+#With base R
+
+iglu_data <- glucinda_data[, c(1,19,21)]
+
+#With dplyr
+
+iglu_data <- glucinda_data  %>% 
+  dplyr::select(sid, datetime, value_mgdl)
+
+```
+
+### Exercise 10: Renaming columns
+
+```{r,eval=FALSE}
+#With base R
+
+colnames(iglu_data) <- c("id", "time", "gl")
+
+#With dplyr
+
+iglu_data <- iglu_data  %>% 
+  dplyr::rename(id = sid, 
+                time = datetime, 
+                gl = value_mgdl)
+```
+
+### Exercise 11: Checking temporal range and sensor activity
+
+```{r,eval=FALSE}
+iglu::active_percent(iglu_data)
+```
+
+### Exercise 12: Calculate range of glucose values per participant
+
+```{r,eval=FALSE}
+#Example for Participant AL001
+min(iglu_data %>% 
+      dplyr::filter(id = "AL001"))
+max(iglu_data %>% 
+      dplyr::filter(id = "AL001"))
+```
+
+### Exercise 13: CGM metrics
+
+```{r,eval=FALSE}
+iglu::active_percent(iglu_data_14days)
+iglu::mean_glu(iglu_data_14days)
+iglu::cv_glu(iglu_data_14days)
+iglu::ea1c(iglu_data_14days)
+iglu::above_percent(iglu_data_14days)
+iglu::in_range_percent(iglu_data_14days)
+iglu::below_percent(iglu_data_14days)
+```
+
+### Exercise 14: Visualising CGM data
+
+```{r,eval=FALSE}
+
+iglu::plot_glu(iglu_data_14days)
+
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "AL001"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DG002"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DC003"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "MC004"))
+```
+
+
+### Final exercise
+
+```{r,eval=FALSE}
+
+glucinda_data <- read.csv("data2_parsed/parsed_just_cgm.csv", sep=";") %>% 
+  dplyr::mutate(value_mgdl = value_num)
+
+mgtommol_multiplier <- 0.0555
+mmoltomg_multiplier <- 18.018018
+
+add_converted_glucose_columns <- function(mydata) {
+  mydata  %>% 
+    dplyr::mutate(
+      value_mgdl  = ifelse(grepl("mg", unit),
+                           value_num,
+                           value_num * mmoltomg_multiplier),
+      value_mmoll = ifelse(grepl("mol", unit),
+                           value_num,
+                           value_num * mgtommol_multiplier)
+    )
+}
+
+glucinda_data <- glucinda_data %>% 
+  add_converted_glucose_columns() %>% 
+  dplyr::mutate(datetime = paste(date, time)) %>%
+  dplyr::mutate(datetime = lubridate::ymd_hms(paste(date, time)))
+
+iglu_data <- glucinda_data  %>%
+  dplyr::select(sid, datetine, value_mgdl) %>%
+  dplyr::rename(id=sid, time = datetime, gl = value_mgdl) %>%
+  dplyr::group_by(id, time) %>%
+  dplyr::summarise(gl = mean(gl)) %>%
+  dplyr::ungroup()
+
+iglu_data_14days <- iglu_data %>% 
+  dplyr::group_by(id) %>%
+  dplyr::filter(as.Date(time) >= min(as.Date(time)) + 20,
+                as.Date(time) <= min(as.Date(time)) + 33) %>%
+  dplyr::ungroup()
+
+iglu::active_percent(iglu_data_14days)
+iglu::mean_glu(iglu_data_14days)
+iglu::cv_glu(iglu_data_14days)
+iglu::ea1c(iglu_data_14days)
+iglu::above_percent(iglu_data_14days)
+iglu::in_range_percent(iglu_data_14days)
+iglu::below_percent(iglu_data_14days)
+
+iglu::plot_glu(iglu_data_14days)
+
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "AL001"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DG002"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "DC003"))
+iglu::agp(iglu_data_14days %>% dplyr::filter(id == "MC004"))
+
+```
