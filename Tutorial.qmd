@@ -54,7 +54,7 @@ There is no standard for CGM exports which is why table formats differ significa
 Therefore, your need two more arguments in `read.csv()`:
 
 | Argument | What it does |
-|----|----|
+|------------------------------------|------------------------------------|
 | `skip = n` | Skips the first *n* lines before reading, default is 0 |
 | `header = TRUE` | Treats the next line after skipping as column names (default) |
 
@@ -235,7 +235,7 @@ You can now import the GluCINDa data with `read.csv()`like above. Note that GluC
 The key columns for our purposes are:
 
 | Column | Content |
-|----|----|
+|------------------------------------|------------------------------------|
 | `sid` | Subject/participant identifier, derived from filename |
 | `date` | Date of measurement (`YYYY/mm/dd`) |
 | `time` | Time of measurement (`HH:MM:SS`) |
@@ -519,15 +519,15 @@ Check the temporal range of each participant's data and sensor activity using th
 
 What can you notice? Who has the highest number of CGM data collection days? Who has the lowest sensor activity percentage?
 
-We only need 14 days of data for the tutorial, so let's select day 21-34 for each participant to get data from the middle of the data. Run the code below:
+We only need 14 days of data for the tutorial, so let's select the last 14 full days (leaving out the last day per subject as these are likely truncated) for each participant to get data from the middle of the data. Run the code below:
 
 ```{r, eval=TRUE}
 iglu_data_14days <- iglu_data %>% 
   dplyr::group_by(id) %>%
   dplyr::filter(
-    as.Date(time) >= min(as.Date(time)) + 20,
-    as.Date(time) <= min(as.Date(time)) + 33
-  ) %>%
+    as.Date(time) >= max(as.Date(time)) - 14,
+    as.Date(time) <= max(as.Date(time)) - 1
+    ) %>%
   dplyr::ungroup()
 
 # Check that the runtimes are now only 14 days and activity is sufficient
