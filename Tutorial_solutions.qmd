@@ -114,9 +114,19 @@ iglu::active_percent(iglu_data)
 ```{r,eval=FALSE}
 #Example for Participant AL001
 min(iglu_data %>% 
-      dplyr::filter(id = "AL001"))
+      dplyr::filter(id = "AL001") %>%
+      dplyr::select(gl))
+
 max(iglu_data %>% 
-      dplyr::filter(id = "AL001"))
+      dplyr::filter(id = "AL001") %>%
+      dplyr::select(gl))
+
+#Other option
+iglu_data %>%
+  dplyr::group_by(id) %>%
+  dplyr::summarise(min = min(gl),
+                   max = max(gl))
+
 ```
 
 ### Exercise 13: CGM metrics
